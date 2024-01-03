@@ -23,12 +23,12 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
             return;
         }
 
-        AddRow(layout, "Title", "RECENT ITEMS");
+        AddRow(layout, "Title", titleFontSize, "RECENT ITEMS");
 
         for (var i = System.Math.Max(0, tlog.Count - numDisplayedItems);
              i < tlog.Count; i++)
         {
-            AddRow(layout, "Recent Item", tlog[i].ItemName);
+            AddRow(layout, "Recent Item", itemFontSize, tlog[i].ItemName);
         }
     }
 
@@ -45,15 +45,18 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
         return _layout;
     }
 
-    private static void AddRow(MUI.Core.Layout layout, string name, string content)
+    private static void AddRow(MUI.Core.Layout layout, string name, int fontSize, string content)
     {
         var element = new MUI.Elements.TextObject(layout.LayoutRoot, name);
         element.Text = content;
+        element.FontSize = fontSize;
         element.MaxWidth = displayWidth;
         layout.Children.Add(element);
     }
 
     private const float displayWidth = 300;
+    private const int titleFontSize = 30;
+    private const int itemFontSize = 24;
     private const int numDisplayedItems = 7;
 
     private MUI.Elements.StackLayout? _layout;
