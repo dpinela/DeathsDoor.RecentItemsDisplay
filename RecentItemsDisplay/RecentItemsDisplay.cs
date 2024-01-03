@@ -15,20 +15,43 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 
     private void UpdateHUD(Collections.List<IC.TrackerLogEntry>? tlog)
     {
-        var layout = InitLayout();
-        layout.Children.Clear();
-
         if (tlog == null)
         {
+            if (_layout != null)
+            {
+                _layout.Visibility = MUI.Core.Visibility.Collapsed;
+            }
             return;
         }
 
-        AddRow(layout, "Title", titleFontSize, "RECENT ITEMS");
+        var layout = InitLayout();
+        layout.Visibility = MUI.Core.Visibility.Visible;
 
-        for (var i = System.Math.Max(0, tlog.Count - numDisplayedItems);
-             i < tlog.Count; i++)
+        // Reuse TextObjects whenever possible so that the list doesn't
+        // flicker when we update it.
+        var si = System.Math.Max(0, tlog.Count - numDisplayedItems);
+        var numUsedSlots = tlog.Count - si;
+        // excluding the title
+        var numAvailableSlots = layout.Children.Count - 1;
+
+        while (numAvailableSlots < numUsedSlots)
         {
-            AddRow(layout, "Recent Item", itemFontSize, tlog[i].ItemName);
+            AddRow(layout, "Recent Item", itemFontSize, "");
+            numAvailableSlots++;
+        }
+
+        for (var i = 0; i < numUsedSlots; i++)
+        {
+            var slot = (MUI.Elements.TextObject)layout.Children[1 + i];
+            slot.Text = tlog[si + i].ItemName;
+            slot.Visibility = MUI.Core.Visibility.Visible;
+        }
+
+        for (var i = numUsedSlots; i < numAvailableSlots; i++)
+        {
+            var slot = (MUI.Elements.TextObject)layout.Children[1 + i];
+            slot.Text = "";
+            slot.Visibility = MUI.Core.Visibility.Collapsed;
         }
     }
 
@@ -41,6 +64,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
             _layout.Orientation = MUI.Core.Orientation.Vertical;
             _layout.HorizontalAlignment = MUI.Core.HorizontalAlignment.Right;
             _layout.VerticalAlignment = MUI.Core.VerticalAlignment.Top;
+            AddRow(_layout, "Title", titleFontSize, "RECENT ITEMS");
         }
         return _layout;
     }
