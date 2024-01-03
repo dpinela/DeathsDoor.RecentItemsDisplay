@@ -1,6 +1,7 @@
 using Bep = BepInEx;
 using IC = DDoor.ItemChanger;
 using MUI = MagicUI;
+using static MagicUI.Core.ApplyAttachedPropertyChainables;
 using Collections = System.Collections.Generic;
 
 [Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.0.0.0")]
@@ -27,18 +28,8 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
         var layout = InitLayout();
         layout.Visibility = MUI.Core.Visibility.Visible;
 
-        // Reuse TextObjects whenever possible so that the list doesn't
-        // flicker when we update it.
         var si = System.Math.Max(0, tlog.Count - numDisplayedItems);
         var numUsedSlots = tlog.Count - si;
-        // excluding the title
-        var numAvailableSlots = layout.Children.Count - 1;
-
-        while (numAvailableSlots < numUsedSlots)
-        {
-            AddRow(layout, "Recent Item", itemFontSize, "");
-            numAvailableSlots++;
-        }
 
         for (var i = 0; i < numUsedSlots; i++)
         {
@@ -47,7 +38,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
             slot.Visibility = MUI.Core.Visibility.Visible;
         }
 
-        for (var i = numUsedSlots; i < numAvailableSlots; i++)
+        for (var i = numUsedSlots; i < numDisplayedItems; i++)
         {
             var slot = (MUI.Elements.TextObject)layout.Children[1 + i];
             slot.Text = "";
@@ -57,25 +48,39 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 
     private MUI.Core.Layout InitLayout()
     {
-        if (_layout == null)
+        if (_layout != null)
         {
-            var root = new MUI.Core.LayoutRoot(true, "Recent Items Display");
-            _layout = new(root, "Items List");
-            _layout.Orientation = MUI.Core.Orientation.Vertical;
-            _layout.HorizontalAlignment = MUI.Core.HorizontalAlignment.Right;
-            _layout.VerticalAlignment = MUI.Core.VerticalAlignment.Top;
-            AddRow(_layout, "Title", titleFontSize, "RECENT ITEMS");
+            return _layout;
         }
+        // We could almost use a StackLayout, but we want to set
+        // a minimum width and StackLayout doesn't directly support
+        // that.
+        var root = new MUI.Core.LayoutRoot(true, "Recent Items Display");
+        _layout = new(root, "Items List");
+        for (var i = 0; i < numDisplayedItems + 1; i++)
+        {
+            _layout.RowDefinitions.Add(new(0, MUI.Elements.GridUnit.AbsoluteMin));
+        }
+        _layout.Children.Add(MakeRow(_layout, "Title", titleFontSize, "RECENT ITEMS"));
+        for (var i = 0; i < numDisplayedItems; i++)
+        {
+            _layout.Children.Add(
+                MakeRow(_layout, "Recent Item", itemFontSize, "")
+                .WithProp(MUI.Elements.GridLayout.Row, i + 1));
+        }
+        _layout.MinWidth = displayWidth;
+        _layout.HorizontalAlignment = MUI.Core.HorizontalAlignment.Right;
+        _layout.VerticalAlignment = MUI.Core.VerticalAlignment.Top;
         return _layout;
     }
 
-    private static void AddRow(MUI.Core.Layout layout, string name, int fontSize, string content)
+    private static MUI.Elements.TextObject MakeRow(MUI.Core.Layout layout, string name, int fontSize, string content)
     {
         var element = new MUI.Elements.TextObject(layout.LayoutRoot, name);
         element.Text = content;
         element.FontSize = fontSize;
         element.MaxWidth = displayWidth;
-        layout.Children.Add(element);
+        return element;
     }
 
     private const float displayWidth = 300;
@@ -83,5 +88,5 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
     private const int itemFontSize = 24;
     private const int numDisplayedItems = 7;
 
-    private MUI.Elements.StackLayout? _layout;
+    private MUI.Elements.GridLayout? _layout;
 }
