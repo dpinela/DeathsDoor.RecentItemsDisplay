@@ -46,6 +46,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
                     .WithProp(GL.Column, 0);
                 img.Width = itemFontSize * 2;
                 img.Height = itemFontSize * 2;
+                img.PreserveAspectRatio = true;
                 _rows[i].Icon = img;
                 layout.Children.Add(img);
             }
@@ -76,7 +77,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
         var root = new MUI.Core.LayoutRoot(true, "Recent Items Display");
         _layout = new(root, "Items List");
         _layout.ColumnDefinitions.Add(new(itemFontSize, MUI.Elements.GridUnit.AbsoluteMin));
-        _layout.ColumnDefinitions.Add(new(0, MUI.Elements.GridUnit.AbsoluteMin));
+        _layout.ColumnDefinitions.Add(new(displayWidth - itemFontSize, MUI.Elements.GridUnit.AbsoluteMin));
         for (var i = 0; i < numDisplayedItems + 1; i++)
         {
             _layout.RowDefinitions.Add(new(0, MUI.Elements.GridUnit.AbsoluteMin));
