@@ -5,6 +5,8 @@ using GL = MagicUI.Elements.GridLayout;
 using static MagicUI.Core.ApplyAttachedPropertyChainables;
 using Collections = System.Collections.Generic;
 
+namespace DDoor.RecentItemsDisplay;
+
 [Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.0.0.0")]
 [Bep.BepInDependency("deathsdoor.magicui", "1.8")]
 [Bep.BepInDependency("deathsdoor.itemchanger", "1.0.1")]
@@ -13,11 +15,22 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
     public void Start()
     {
         IC.SaveData.OnTrackerLogUpdate += UpdateHUD;
+        settings = new(Config);
+        settings.OnMaxNumEntriesChanged += () =>
+        {
+            if (_layout != null)
+            {
+                _layout.LayoutRoot.Destroy();
+                _layout = null;
+            }
+            UpdateHUD(lastShownLog);
+        };
     }
 
     private void UpdateHUD(Collections.List<IC.TrackerLogEntry>? tlog)
     {
-        if (tlog == null)
+        lastShownLog = tlog;
+        if (tlog == null || settings!.MaxNumEntries <= 0)
         {
             if (_layout != null)
             {
@@ -29,6 +42,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
         var layout = InitLayout();
         layout.Visibility = MUI.Core.Visibility.Visible;
 
+        var numDisplayedItems = settings!.MaxNumEntries;
         var si = System.Math.Max(0, tlog.Count - numDisplayedItems);
         var numUsedSlots = tlog.Count - si;
 
@@ -67,6 +81,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 
     private MUI.Core.Layout InitLayout()
     {
+        var numDisplayedItems = settings!.MaxNumEntries;
         if (_layout != null)
         {
             return _layout;
@@ -122,7 +137,9 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
     private const float displayWidth = 300;
     private const int titleFontSize = 36;
     private const int itemFontSize = 28;
-    private const int numDisplayedItems = 7;
 
     private MUI.Elements.GridLayout? _layout;
+
+    private Settings? settings;
+    private Collections.List<IC.TrackerLogEntry>? lastShownLog;
 }
