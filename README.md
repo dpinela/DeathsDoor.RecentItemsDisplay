@@ -8,7 +8,7 @@ their items.
 
 # How to use
 
-Install this mod and open any file (even an existing one) that uses ItemChanger
+Install this mod, along with [MagicUI][], and open any file (even an existing one) that uses ItemChanger
 (a plando file, for example), and you will see a list of recent items in the top
 right corner.
 
@@ -17,6 +17,8 @@ the number after `MaxNumEntries =` to what you want. Setting it to zero
 disables the mod altogether.
 
 Alternatively, you may use [BepInEx's configuration manager][biecfg], which provides an in-game GUI to configure your mod settings.
+
+[biecfg]: https://github.com/BepInEx/BepInEx.ConfigurationManager
 
 # How to build
 
