@@ -5,6 +5,7 @@ namespace DDoor.RecentItemsDisplay;
 internal class Settings
 {
     private BepConfig.ConfigEntry<int> maxNumEntries;
+    private BepConfig.ConfigEntry<bool> showAreaName;
 
     public Settings(BepConfig.ConfigFile f)
     {
@@ -13,12 +14,16 @@ internal class Settings
                 "The maximum number of items shown", 
                 new BepConfig.AcceptableValueRange<int>(0, 100),
                 new ConfigurationManagerAttributes()));
-        maxNumEntries.SettingChanged += (_, _) => OnMaxNumEntriesChanged();
+        maxNumEntries.SettingChanged += (_, _) => OnSettingsChanged();
+
+        showAreaName = f.Bind("", "ShowAreaName", true);
+        showAreaName.SettingChanged += (_, _) => OnSettingsChanged();
     }
 
     public int MaxNumEntries => maxNumEntries.Value;
+    public bool ShowAreaName => showAreaName.Value;
 
-    public event System.Action OnMaxNumEntriesChanged = () => {};
+    public event System.Action OnSettingsChanged = () => {};
 
     // Used to keep numeric settings from displaying as % slider
     // in the BepInEx configuration manager.

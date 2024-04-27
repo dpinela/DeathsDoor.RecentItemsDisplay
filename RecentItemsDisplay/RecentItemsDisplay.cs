@@ -7,16 +7,16 @@ using Collections = System.Collections.Generic;
 
 namespace DDoor.RecentItemsDisplay;
 
-[Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.0.0.0")]
+[Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.1.0.0")]
 [Bep.BepInDependency("deathsdoor.magicui", "1.8")]
-[Bep.BepInDependency("deathsdoor.itemchanger", "1.0.1")]
+[Bep.BepInDependency("deathsdoor.itemchanger", "1.2")]
 internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 {
     public void Start()
     {
         IC.SaveData.OnTrackerLogUpdate += UpdateHUD;
         settings = new(Config);
-        settings.OnMaxNumEntriesChanged += () =>
+        settings.OnSettingsChanged += () =>
         {
             if (_layout != null)
             {
@@ -65,7 +65,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
                 layout.Children.Add(img);
             }
             var slot = (MUI.Elements.TextObject)layout.Children[1 + i];
-            slot.Text = tlog[si + i].ItemName;
+            slot.Text = EntryText(tlog[si + i]);
             slot.Visibility = MUI.Core.Visibility.Visible;
         }
 
@@ -77,6 +77,18 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
                 img.Visibility = MUI.Core.Visibility.Collapsed;
             }
         }
+    }
+
+    private string EntryText(IC.TrackerLogEntry e)
+    {
+        if (!settings!.ShowAreaName)
+        {
+            return e.ItemName;
+        }
+        var area = IC.Predefined.TryGetLocation(e.LocationName, out var loc) ?
+            loc.Area :
+            IC.Area.Unknown;
+        return e.ItemName + "\nfrom " + IC.AreaName.Of(area);
     }
 
     private MUI.Core.Layout InitLayout()
