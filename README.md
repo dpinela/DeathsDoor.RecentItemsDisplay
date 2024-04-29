@@ -16,6 +16,9 @@ To change how many items appear, open the `deathsdoor.recentitemsdisplay.cfg` fi
 the number after `MaxNumEntries =` to what you want. Setting it to zero
 disables the mod altogether.
 
+By default, the name of the area the item was obtained from is shown; if
+you would prefer to not have it, you may disable `ShowAreaName` in the settings.
+
 Alternatively, you may use [BepInEx's configuration manager][biecfg], which provides an in-game GUI to configure your mod settings.
 
 [biecfg]: https://github.com/BepInEx/BepInEx.ConfigurationManager
