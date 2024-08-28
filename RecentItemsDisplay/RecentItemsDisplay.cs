@@ -7,9 +7,9 @@ using Collections = System.Collections.Generic;
 
 namespace DDoor.RecentItemsDisplay;
 
-[Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.1.0.0")]
+[Bep.BepInPlugin("deathsdoor.recentitemsdisplay", "RecentItemsDisplay", "1.2.0.0")]
 [Bep.BepInDependency("deathsdoor.magicui", "1.8")]
-[Bep.BepInDependency("deathsdoor.itemchanger", "1.2")]
+[Bep.BepInDependency("deathsdoor.itemchanger", "1.5")]
 internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 {
     public void Start()
@@ -83,12 +83,23 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
     {
         if (!settings!.ShowAreaName)
         {
-            return e.ItemName;
+            return e.ItemDisplayName;
         }
-        var area = IC.Predefined.TryGetLocation(e.LocationName, out var loc) ?
-            loc.Area :
-            IC.Area.Unknown;
-        return e.ItemName + "\nfrom " + IC.AreaName.Of(area);
+        var areaName = AreaName(e);
+        return e.ItemDisplayName + "\nfrom " + areaName;
+    }
+
+    private static string AreaName(IC.TrackerLogEntry e)
+    {
+        if (e.LocationIsVirtual)
+        {
+            return e.LocationName;
+        }
+        if (IC.Predefined.TryGetLocation(e.LocationName, out var loc))
+        {
+            return IC.AreaName.Of(loc.Area);
+        }
+        return IC.AreaName.Of(IC.Area.Unknown);
     }
 
     private MUI.Core.Layout InitLayout()
