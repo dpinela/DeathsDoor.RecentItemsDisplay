@@ -48,23 +48,24 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
 
         for (var i = 0; i < numUsedSlots; i++)
         {
+            var j = numUsedSlots - 1 - i;
             var icon = IC.ItemIcons.Get(tlog[si + i].ItemIcon);
-            if (_rows[i].Icon is {} img)
+            if (_rows[j].Icon is {} img)
             {
                 img.Sprite = icon;
             }
             else
             {
                 img = new MUI.Elements.Image(layout.LayoutRoot, icon, "Recent Item Icon")
-                    .WithProp(GL.Row, i + 1)
+                    .WithProp(GL.Row, j + 1)
                     .WithProp(GL.Column, 0);
                 img.Width = itemFontSize * 2;
                 img.Height = itemFontSize * 2;
                 img.PreserveAspectRatio = true;
-                _rows[i].Icon = img;
+                _rows[j].Icon = img;
                 layout.Children.Add(img);
             }
-            var slot = (MUI.Elements.TextObject)layout.Children[1 + i];
+            var slot = (MUI.Elements.TextObject)layout.Children[1 + j];
             slot.Text = EntryText(tlog[si + i]);
             slot.Visibility = MUI.Core.Visibility.Visible;
         }
