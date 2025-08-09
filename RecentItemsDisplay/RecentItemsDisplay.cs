@@ -53,6 +53,7 @@ internal class RecentItemsDisplayPlugin : Bep.BaseUnityPlugin
             if (_rows[j].Icon is {} img)
             {
                 img.Sprite = icon;
+                img.Visibility = MUI.Core.Visibility.Visible;
             }
             else
             {
